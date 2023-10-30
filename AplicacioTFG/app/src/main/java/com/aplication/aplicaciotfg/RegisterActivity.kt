@@ -17,17 +17,18 @@ import java.util.regex.Pattern
 
 
 class RegisterActivity : AppCompatActivity() {
-    lateinit var guardar: AppCompatButton
-    lateinit var nom: EditText
-    lateinit var email: EditText
-    lateinit var contra: EditText
-    lateinit var contra_repetida: EditText
-    lateinit var logo: ImageView
-    lateinit var seleccioImatge: TextView
+    private lateinit var guardar: AppCompatButton
+    private lateinit var nom: EditText
+    private lateinit var email: EditText
+    private lateinit var contra: EditText
+    private lateinit var contra_repetida: EditText
+    private lateinit var logo: ImageView
+    private lateinit var seleccioImatge: TextView
     private lateinit var uriImatge: Uri
     private var imatgeSeleccionada: Boolean = false
 
-    val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+    // Ens permet obtenir la uri de la imatge seleccionada
+    val fotoTriada = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) {
             logo.setImageURI(uri)
             uriImatge = uri
@@ -40,6 +41,7 @@ class RegisterActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
 
+        // Obtenir els diferents elements del layout
         guardar = findViewById(R.id.guardar)
         nom = findViewById(R.id.nom)
         email = findViewById(R.id.email)
@@ -48,8 +50,9 @@ class RegisterActivity : AppCompatActivity() {
         logo = findViewById(R.id.logo)
         seleccioImatge = findViewById(R.id.seleccioImatge)
 
+        // Al clicar per seleccionar la imatge ens permet seleccionar imatges del nostre dispossitiu
         seleccioImatge.setOnClickListener {
-            pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            fotoTriada.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
         }
 
         guardar.setOnClickListener{

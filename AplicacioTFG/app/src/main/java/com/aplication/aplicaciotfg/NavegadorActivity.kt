@@ -12,16 +12,23 @@ import com.google.android.material.navigation.NavigationView
 open class NavegadorActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navView: NavigationView
+    private lateinit var toggle: ActionBarDrawerToggle
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.navegator_layout)
 
+        // Obtenir els diferents elements del layout
         drawerLayout = findViewById(R.id.drawer_layout)
         navView = findViewById(R.id.nav_view)
 
-        val toggle = ActionBarDrawerToggle(this, drawerLayout, R.string.open_drawer, R.string.close_drawer)
+        // Administra l'obertura i tancament del menu
+        toggle = ActionBarDrawerToggle(this, drawerLayout, R.string.open_drawer, R.string.close_drawer)
+
+        // Per poder respondre als events d'obertura i tancament
         drawerLayout.addDrawerListener(toggle)
+
+        // Per sincronitzar ActionBar i el DrawerLayout
         toggle.syncState()
 
         navView.setNavigationItemSelectedListener { menuItem ->

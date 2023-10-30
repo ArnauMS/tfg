@@ -35,7 +35,6 @@ object BaseDades {
             dataFile.createNewFile()
         }
 
-        println("Entra")
         val arxiuClauPublica = File(context.filesDir, "claus/clau_publica.der")
         val arxiuClauPrivada = File(context.filesDir, "claus/clau_privada.der")
         if (!arxiuClauPublica.exists() || !arxiuClauPrivada.exists()) {
@@ -59,10 +58,10 @@ object BaseDades {
         generador.initialize(2048)
         val claus = generador.generateKeyPair()
 
-        // Acceder al directorio de archivos privados de la actividad
+        // Accedir al directori d'arxius privats de l'activitat
         val directori = File(context.filesDir, "claus")  // Directorio específico de tu aplicación
 
-        // Asegurarse de que el directorio exista
+        // Comprovem que el directori existeix
         if (!directori.exists()) {
             directori.mkdirs()
         }
@@ -101,7 +100,6 @@ object BaseDades {
 
     // Funció per desar un usuari al fitxer JSON
     fun registrarse(nom: String, email: String, contrasenya: String, imatge: Uri) {
-        println("Entra registrar")
         // Comprovar que existeix el fitxer i en cas positiu carregar-lo
         val json = if (dataFile.exists() && dataFile.length() > 0) {
             JSONObject(dataFile.readText())
@@ -206,7 +204,7 @@ object BaseDades {
                         } else {
                             emptyList()
                         }
-                        DadesUsuari(nom, emailDesencriptat, contrasenya, imatge, entrenos)
+                        return DadesUsuari(nom, emailDesencriptat, contrasenya, imatge, entrenos)
                     }
                 }
             }
@@ -233,11 +231,11 @@ object BaseDades {
                     // Si els emails coincideixen
                     if (emailDesencriptat == email) {
                         // Si s'ha modificat el valor sera actualizat, sino es deixara el que hi havia
-                        nouNom?.let {
+                        if (nouNom != "") {
                             usuari.put("nom", nouNom)
                         }
-                        novaContrasenya?.let {
-                            val novaContrasenyaEncriptada = encriptarDades(novaContrasenya, clauPublica)
+                        if (novaContrasenya != "") {
+                            val novaContrasenyaEncriptada = novaContrasenya?.let { encriptarDades(it, clauPublica) }
                             usuari.put("contrasenya", novaContrasenyaEncriptada)
                         }
                         novaImatge?.let {

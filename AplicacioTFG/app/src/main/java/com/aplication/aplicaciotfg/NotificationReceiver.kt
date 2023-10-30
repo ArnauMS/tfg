@@ -8,20 +8,21 @@ import androidx.core.app.NotificationManagerCompat
 
 class NotificationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
-        val title = intent?.getStringExtra("title")
-        val content = intent?.getStringExtra("content")
-        val channelId = intent?.getStringExtra("channelId")
+        val titol = intent?.getStringExtra("titol")
+        val contingut = intent?.getStringExtra("contingut")
+        val idCanal = intent?.getStringExtra("idCanal")
 
-        if (context != null && title != null && content != null && channelId != null) {
-            showNotification(context, title, content, channelId)
+        if (context != null && titol != null && contingut != null && idCanal != null) {
+            mostrarNotificacio(context, titol, contingut, idCanal)
         }
     }
 
-    private fun showNotification(context: Context, title: String, content: String, channelId: String) {
-        val builder = NotificationCompat.Builder(context, channelId)
+    // Funcio per mostrar la notificacio
+    private fun mostrarNotificacio(context: Context, titol: String, contingut: String, idCanal: String) {
+        val builder = NotificationCompat.Builder(context, idCanal)
             .setSmallIcon(R.drawable.avatar)
-            .setContentTitle(title)
-            .setContentText(content)
+            .setContentTitle(titol)
+            .setContentText(contingut)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
 
         with(NotificationManagerCompat.from(context)) {

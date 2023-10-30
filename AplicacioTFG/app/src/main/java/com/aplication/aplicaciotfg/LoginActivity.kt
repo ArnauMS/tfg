@@ -11,10 +11,10 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 class LoginActivity : AppCompatActivity() {
-    lateinit var entrar: AppCompatButton
-    lateinit var email: EditText
-    lateinit var password: EditText
-    lateinit var registrarse: TextView
+    private lateinit var entrar: AppCompatButton
+    private lateinit var email: EditText
+    private lateinit var password: EditText
+    private lateinit var registrarse: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,6 +25,7 @@ class LoginActivity : AppCompatActivity() {
             inicialitzarClaus(this@LoginActivity)
         }
 
+        // Obtenir els diferents elements del layout
         entrar = findViewById(R.id.entrar)
         email = findViewById(R.id.email)
         password = findViewById(R.id.contra)

@@ -10,19 +10,29 @@ import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
 
 class PaginaPrincipalActivity : NavegadorActivity() {
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var navView: NavigationView
+    private lateinit var btnMenu: AppCompatButton
+    private lateinit var titol: TextView
+    private val idCanal = "36543941516516549665214684168415056985552852841"
+    private lateinit var nom: TextView
+    private lateinit var botoAdd: Button
+    private lateinit var fotoPerfil: ImageView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         layoutInflater.inflate(R.layout.activity_pagina_principal, findViewById(R.id.container))
 
-        val channelId = "36543941516516549665214684168415056985552852841"
-        val nom = findViewById<TextView>(R.id.nom)
-        val titol = findViewById<TextView>(R.id.titol)
-        val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
-        val navView = findViewById<NavigationView>(R.id.nav_view)
-        val btnMenu = findViewById<AppCompatButton>(R.id.btnMenu)
-        val botoAdd = findViewById<Button>(R.id.botoAdd)
-        val fotoPerfil = findViewById<ImageView>(R.id.fotoPerfil)
+        // Obtenir els diferents elements del layout
+        drawerLayout = findViewById(R.id.drawer_layout)
+        navView = findViewById(R.id.nav_view)
+        btnMenu = findViewById(R.id.btnMenu)
+        titol = findViewById(R.id.titol)
+        nom = findViewById(R.id.nom)
+        botoAdd = findViewById(R.id.botoAdd)
+        fotoPerfil = findViewById(R.id.fotoPerfil)
 
+        // Carregar nom i foto de perfil del usuari
         nom.text = Usuari.nom
         fotoPerfil.setImageURI(Usuari.imatge)
 
@@ -46,14 +56,8 @@ class PaginaPrincipalActivity : NavegadorActivity() {
             startActivity(intent)
         }
 
-        // Llama a createNotificationChannel para crear el canal de notificaciones
-        NotificationUtils.createNotificationChannel(this, channelId)
-
-        val hour = 14 // Hora de la notificación (en formato de 24 horas)
-        val minute = 19 // Minuto de la notificación
-        val title = "Introducir datos"
-        val content = "Recuerda introducir tus datos del entrenamiento!"
-
-        NotificationScheduler.scheduleNotification(this, hour, minute, title, content, channelId)
+        // Crida a crearCanalNotificacio per crear el canal de notificacions
+        NotificationUtils.crearCanalNotificacio(this, idCanal)
+        NotificationScheduler.programarNotificacio(this, Usuari.hora, Usuari.minut, Usuari.titol, Usuari.contingut, idCanal)
     }
 }

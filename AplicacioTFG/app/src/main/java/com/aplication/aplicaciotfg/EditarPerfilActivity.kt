@@ -20,6 +20,7 @@ class EditarPerfilActivity : NavegadorActivity() {
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navView: NavigationView
     private lateinit var btnMenu: AppCompatButton
+    private lateinit var titol: TextView
     private lateinit var guardar: AppCompatButton
     private lateinit var nom: EditText
     private lateinit var contra: EditText
@@ -29,7 +30,8 @@ class EditarPerfilActivity : NavegadorActivity() {
     private var uriImatge: Uri? = null
     private var imatgeSeleccionada: Boolean = false
 
-    val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+    // Ens permet obtenir la uri de la imatge seleccionada
+    val fotoTriada = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) {
             logo.setImageURI(uri)
             uriImatge = uri
@@ -41,14 +43,12 @@ class EditarPerfilActivity : NavegadorActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         layoutInflater.inflate(R.layout.activity_editar_perfil, findViewById(R.id.container))
-        val titol = findViewById<TextView>(R.id.titol)
-        // Titol de la pantalla que rep per parametre
-        val titolExtra: String = intent.extras?.getString("titol").orEmpty()
-        titol.text = titolExtra
 
+        // Obtenir els diferents elements del layout
         drawerLayout = findViewById(R.id.drawer_layout)
         navView = findViewById(R.id.nav_view)
         btnMenu = findViewById(R.id.btnMenu)
+        titol = findViewById(R.id.titol)
         guardar = findViewById(R.id.guardar)
         nom = findViewById(R.id.nom)
         contra = findViewById(R.id.contra)
@@ -56,11 +56,17 @@ class EditarPerfilActivity : NavegadorActivity() {
         logo = findViewById(R.id.logo)
         seleccioImatge = findViewById(R.id.seleccioImatge)
 
+        // Titol de la pantalla que rep per parametre
+        val titolExtra: String = intent.extras?.getString("titol").orEmpty()
+        titol.text = titolExtra
+
+        // Carregar nom i foto de perfil del usuari
         nom.hint = Usuari.nom
         logo.setImageURI(Usuari.imatge)
 
+        // Al clicar per seleccionar la imatge ens permet seleccionar imatges del nostre dispossitiu
         seleccioImatge.setOnClickListener {
-            pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            fotoTriada.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
         }
 
         guardar.setOnClickListener {
