@@ -11,4 +11,7 @@
     <color name="blau">#228BDF</color>
     <color name="gris">@android:color/darker_gray</color>
     <color name="verd">#1D6F21</color>
+    <color name="dia_entrenat">#B9F6CA</color>
+    <color name="dia_actual">@color/gris</color>
+    <color name="transparent">#00FFFFFF</color>
 </resources>

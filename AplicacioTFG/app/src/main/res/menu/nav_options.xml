@@ -17,6 +17,9 @@
             android:id="@+id/calcular_ent"
             android:title="Precalcular Entrenamiento" />
         <item
+            android:id="@+id/control_ent"
+            android:title="Control Entrenamiento" />
+        <item
             android:id="@+id/introducir_datos"
             android:title="Introducir Datos" />
         <item

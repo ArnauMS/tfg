@@ -24,7 +24,7 @@
         app:layout_constraintEnd_toEndOf="@+id/part_superior"
         app:layout_constraintStart_toStartOf="@+id/part_superior"
         app:layout_constraintTop_toTopOf="@+id/part_superior"
-        tools:text="Nom aplicacio" />
+        tools:hint="Training Control" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnMenu"

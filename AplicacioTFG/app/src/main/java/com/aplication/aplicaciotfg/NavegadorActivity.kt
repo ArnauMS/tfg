@@ -36,7 +36,7 @@ open class NavegadorActivity : AppCompatActivity() {
                 R.id.inicio -> {
                     // Canviar de pantalla a la pagina principal
                     val intent = Intent(this, PaginaPrincipalActivity::class.java)
-                    intent.putExtra("titol", "Nom aplicacio")
+                    intent.putExtra("titol", "Training Control")
                     startActivity(intent)
                     true
                 }
@@ -61,6 +61,13 @@ open class NavegadorActivity : AppCompatActivity() {
                     startActivity(intent)
                     true
                 }
+                R.id.control_ent -> {
+                    // Canviar de pantalla a la de control entrenament
+                    val intent = Intent(this, ControlEntrenamentActivity::class.java)
+                    intent.putExtra("titol", "Control")
+                    startActivity(intent)
+                    true
+                }
                 R.id.introducir_datos -> {
                     // Canviar de pantalla a la d'introduir dades
                     val intent = Intent(this, IntroduirDadesActivity::class.java)
@@ -69,12 +76,15 @@ open class NavegadorActivity : AppCompatActivity() {
                     true
                 }
                 R.id.ajustes -> {
-                    // Manejar la acción para la opción 2
+                    // Canviar de pantalla a la de configuracio
+                    val intent = Intent(this, AjustesActivity::class.java)
+                    intent.putExtra("titol", "Ajustes")
+                    startActivity(intent)
                     true
                 }
                 R.id.tancar_sessio -> {
                     // Funcio que obre el dialeg de tancar sessio
-                    showLogoutConfirmationDialog()
+                    popUpLogout()
                     true
                 }
                 else -> false
@@ -83,7 +93,7 @@ open class NavegadorActivity : AppCompatActivity() {
     }
 
     // Funcio per mostrar un dialeg per tancar la sessio
-    private fun showLogoutConfirmationDialog() {
+    private fun popUpLogout() {
         val alertDialogBuilder = AlertDialog.Builder(this)
         alertDialogBuilder.setTitle("Cerrar Sesión")
         alertDialogBuilder.setMessage("¿Estás seguro de que deseas cerrar sesión?")

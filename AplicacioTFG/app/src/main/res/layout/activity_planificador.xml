@@ -11,33 +11,65 @@
         android:layout_width="300dp"
         android:layout_height="300dp"
         android:src="@drawable/cercle"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.4"/>
 
     <TextView
         android:id="@+id/rang_km"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:hint="5 - 30 Km"
         android:textAlignment="center"
         android:textColor="@color/verd"
         android:textSize="30sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:text="4 - 11 Km" />
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/cercle"
+        app:layout_constraintEnd_toEndOf="@+id/cercle"
+        app:layout_constraintStart_toStartOf="@+id/cercle"
+        app:layout_constraintTop_toTopOf="@+id/cercle"/>
 
     <TextView
+        android:id="@+id/frase"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:padding="8sp"
         android:text="Rango de distancia que puedes recorrer"
         android:textAlignment="center"
         android:textColor="@color/verd"
         android:textSize="30sp"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cercle" />
+
+    <TextView
+        android:id="@+id/frase2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8sp"
+        android:text="Se recomienda descansar"
+        android:textAlignment="center"
+        android:textColor="@color/verd"
+        android:textSize="30sp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/frase" />
+
+    <TextView
+        android:id="@+id/senseEntrenos"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No se han realizado entrenos"
+        android:textColor="@color/black"
+        android:textSize="22sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

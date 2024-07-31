@@ -18,7 +18,6 @@ import org.json.JSONObject
 import java.util.*
 
 object BaseDades {
-    private const val PREF_KEY_EJECUCION = "execucio_realitzada"
     private var dataFile = File("/data/user/0/com.aplication.aplicaciotfg/files/claus/data.json")
 
     private lateinit var clauPublica: PublicKey
@@ -59,7 +58,7 @@ object BaseDades {
         val claus = generador.generateKeyPair()
 
         // Accedir al directori d'arxius privats de l'activitat
-        val directori = File(context.filesDir, "claus")  // Directorio específico de tu aplicación
+        val directori = File(context.filesDir, "claus")
 
         // Comprovem que el directori existeix
         if (!directori.exists()) {
@@ -82,7 +81,7 @@ object BaseDades {
     }
 
     // Funció per xifrar dades amb clau pública
-    fun encriptarDades(dades: String, clauPublica: PublicKey): String {
+    private fun encriptarDades(dades: String, clauPublica: PublicKey): String {
         val cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding")
         cipher.init(Cipher.ENCRYPT_MODE, clauPublica)
         val dadesEncriptades = cipher.doFinal(dades.toByteArray())
@@ -90,7 +89,7 @@ object BaseDades {
     }
 
     // Funció per desxifrar dades amb clau privada
-    fun desencriptarDades(dades: String, clauPrivada: PrivateKey): String {
+    private fun desencriptarDades(dades: String, clauPrivada: PrivateKey): String {
         val dadesEncriptades = Base64.getDecoder().decode(dades)
         val cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding")
         cipher.init(Cipher.DECRYPT_MODE, clauPrivada)
@@ -99,7 +98,7 @@ object BaseDades {
     }
 
     // Funció per desar un usuari al fitxer JSON
-    fun registrarse(nom: String, email: String, contrasenya: String, imatge: Uri) {
+    fun registrarse(nom: String, email: String, contrasenya: String, imatge: Uri?) {
         // Comprovar que existeix el fitxer i en cas positiu carregar-lo
         val json = if (dataFile.exists() && dataFile.length() > 0) {
             JSONObject(dataFile.readText())
@@ -121,7 +120,11 @@ object BaseDades {
         usuari.put("email", emailEncriptat)
         val contrasenyaEncriptada = encriptarDades(contrasenya, clauPublica)
         usuari.put("contrasenya", contrasenyaEncriptada)
-        usuari.put("imatge", imatge.toString())
+
+        if (imatge.toString() != "") {
+            val imatgeEncriptada = encriptarDades(imatge.toString(), clauPublica)
+            usuari.put("imatge", imatgeEncriptada)
+        }
 
         arrayUsuaris.put(usuari)
         json.put("usuaris", arrayUsuaris)
@@ -129,44 +132,6 @@ object BaseDades {
         // Guardem l'usuari al fitxer JSON
         dataFile.writeText(json.toString())
     }
-
-    // Funció per carregar tots els usuaris
-//    fun carregarUsuaris(): List<DadesUsuari> {
-//        val usuaris = mutableListOf<DadesUsuari>()
-//
-//        if (dataFile.exists()) {
-//            val jsonText = dataFile.readText()
-//            val json = JSONObject(jsonText)
-//
-//            if (json.has("usuaris")) {
-//                val arrayUsuaris = json.getJSONArray("usuaris")
-//                for (i in 0 until arrayUsuaris.length()) {
-//                    val usuari = arrayUsuaris.getJSONObject(i)
-//                    val nom = usuari.getString("nom")
-//                    val emailEncriptat = usuari.getString("email")
-//                    val contrasenyaEncriptada = usuari.getString("contrasenya")
-//                    val email = desencriptarDades(emailEncriptat, clauPrivada)
-//                    val contrasenya = desencriptarDades(contrasenyaEncriptada, clauPrivada)
-//                    // Si l'usuari te entrenos els carreguem, sino enviem una llista buida
-//                        val entrenos: List<List<String>> = if (usuari.has("entrenos")) {
-//                            val entrenosJson = usuari.getJSONArray("entrenos")
-//                            // Convertir un JSONArray de llistes en una llista a Kotlin
-//                            (0 until entrenosJson.length()).map { i ->
-//                                val llistatDades = entrenosJson.getJSONArray(i)
-//                                (0 until llistatDades.length()).map { j ->
-//                                    llistatDades.getString(j)
-//                                }
-//                            }
-//                        } else {
-//                            emptyList()
-//                        }
-//                    usuaris.add(DadesUsuari(nom, email, contrasenya, entrenos))
-//                }
-//            }
-//        }
-//
-//        return usuaris
-//    }
 
     // Funció per carregar un usuari pel seu email
     fun carregarUsuari(email: String): DadesUsuari? {
@@ -189,10 +154,15 @@ object BaseDades {
                         val nom = usuari.getString("nom")
                         val contrasenyaEncriptada = usuari.getString("contrasenya")
                         val contrasenya = desencriptarDades(contrasenyaEncriptada, clauPrivada)
-                        val imatge = usuari.getString("imatge").toUri()
+                        var imatge: Uri = Uri.EMPTY
+                        if (usuari.has("imatge")) {
+                            val imatgeEncriptada = usuari.getString("imatge")
+                            imatge = desencriptarDades(imatgeEncriptada, clauPrivada).toUri()
+                        }
+
 
                         // Si l'usuari te entrenos els carreguem, sino enviem una llista buida
-                        val entrenos: List<List<String>> = if (usuari.has("entrenos")) {
+                        val entrenos: MutableList<List<String>> = if (usuari.has("entrenos")) {
                             val entrenosJson = usuari.getJSONArray("entrenos")
                             // Convertir un JSONArray de llistes en una llista a Kotlin
                             (0 until entrenosJson.length()).map { i ->
@@ -203,8 +173,32 @@ object BaseDades {
                             }
                         } else {
                             emptyList()
+                        }.toMutableList()
+
+                        val carregaAgudaAhir = if (usuari.has("carregaAgudaAhir")) {
+                            usuari.getDouble("carregaAgudaAhir")
+                        } else {
+                            0.0
                         }
-                        return DadesUsuari(nom, emailDesencriptat, contrasenya, imatge, entrenos)
+                        val carregaCronicaAhir = if (usuari.has("carregaCronicaAhir")) {
+                            usuari.getDouble("carregaCronicaAhir")
+                        } else {
+                            0.0
+                        }
+
+                        val hora = if (usuari.has("hora")) {
+                            usuari.getInt("hora")
+                        } else {
+                            20
+                        }
+
+                        val minut = if (usuari.has("minut")) {
+                            usuari.getInt("minut")
+                        } else {
+                            59
+                        }
+
+                        return DadesUsuari(nom, emailDesencriptat, contrasenya, imatge, entrenos, carregaAgudaAhir, carregaCronicaAhir, hora, minut)
                     }
                 }
             }
@@ -238,8 +232,9 @@ object BaseDades {
                             val novaContrasenyaEncriptada = novaContrasenya?.let { encriptarDades(it, clauPublica) }
                             usuari.put("contrasenya", novaContrasenyaEncriptada)
                         }
-                        novaImatge?.let {
-                            usuari.put("imatge", novaImatge.toString())
+                        if (novaImatge.toString() != "") {
+                            val novaImatgeEncriptada = novaImatge?.let { encriptarDades(it.toString(), clauPublica) }
+                            usuari.put("imatge", novaImatgeEncriptada)
                         }
 
                         // Guarda la informacio actualizada a l'arxiu JSON
@@ -252,7 +247,7 @@ object BaseDades {
         return false
     }
 
-    fun actualitzarEntrenos(email: String, updatedList: List<List<String>>): Boolean {
+    fun actualitzarEntrenos(email: String, llistaActualitzada: MutableList<List<String>>): Boolean {
         // Comprovem que el fitxer JSON existeix
         if (dataFile.exists() && dataFile.length() > 0) {
             val jsonText = dataFile.readText()
@@ -270,7 +265,7 @@ object BaseDades {
                     // Si els emails coincideixen actualitzem els entrenos
                     if (emailDesencriptat == email) {
                         // Usuari trobat, actualitza la llista
-                        usuari.put("entrenos", JSONArray(updatedList.map { JSONArray(it) }))
+                        usuari.put("entrenos", JSONArray(llistaActualitzada.map { JSONArray(it) }))
                         // Guarda la informacio actualizada a l'arxiu JSON
                         dataFile.writeText(json.toString())
                         return true
@@ -281,6 +276,66 @@ object BaseDades {
         return false
     }
 
+    // Funcio per actualitzar el perfil de l'usuari
+    fun emmagatzemarEwma(email: String, carregaAgudaAhir: Double, carregaCronicaAhir: Double): Boolean {
+        // Comprovem que el fitxer JSON existeix
+        if (dataFile.exists() && dataFile.length() > 0) {
+            val jsonText = dataFile.readText()
+            val json = JSONObject(jsonText)
+
+            // Comprovar que existeix la variable usuaris
+            if (json.has("usuaris")) {
+                val arrayUsuaris = json.getJSONArray("usuaris")
+                // Recorrem tots els usuaris
+                for (i in 0 until arrayUsuaris.length()) {
+                    val usuari = arrayUsuaris.getJSONObject(i)
+                    val emailEncriptat = usuari.getString("email")
+                    val emailDesencriptat = desencriptarDades(emailEncriptat, clauPrivada)
+
+                    // Si els emails coincideixen
+                    if (emailDesencriptat == email) {
+                        usuari.put("carregaAgudaAhir", carregaAgudaAhir)
+                        usuari.put("carregaCronicaAhir", carregaCronicaAhir)
+
+                        // Guarda la informacio actualizada a l'arxiu JSON
+                        dataFile.writeText(json.toString())
+                        return true
+                    }
+                }
+            }
+        }
+        return false
+    }
+
+    fun emmagatzemarHora(email: String, hora: Int, minut: Int): Boolean {
+        // Comprovem que el fitxer JSON existeix
+        if (dataFile.exists() && dataFile.length() > 0) {
+            val jsonText = dataFile.readText()
+            val json = JSONObject(jsonText)
+
+            // Comprovar que existeix la variable usuaris
+            if (json.has("usuaris")) {
+                val arrayUsuaris = json.getJSONArray("usuaris")
+                // Recorrem tots els usuaris
+                for (i in 0 until arrayUsuaris.length()) {
+                    val usuari = arrayUsuaris.getJSONObject(i)
+                    val emailEncriptat = usuari.getString("email")
+                    val emailDesencriptat = desencriptarDades(emailEncriptat, clauPrivada)
+
+                    // Si els emails coincideixen
+                    if (emailDesencriptat == email) {
+                        usuari.put("hora", hora)
+                        usuari.put("minut", minut)
+
+                        // Guarda la informacio actualizada a l'arxiu JSON
+                        dataFile.writeText(json.toString())
+                        return true
+                    }
+                }
+            }
+        }
+        return false
+    }
 }
 
-data class DadesUsuari(val nom: String, val email: String, val contrasenya: String, val imatge: Uri, val entrenos: List<List<String>>)
+data class DadesUsuari(val nom: String, val email: String, val contrasenya: String, val imatge: Uri, val entrenos: MutableList<List<String>>, val carregaAgudaAhir: Double, val carregaCronicaAhir: Double, val hora: Int, val minut: Int)

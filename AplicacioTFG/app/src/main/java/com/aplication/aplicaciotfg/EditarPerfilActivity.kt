@@ -1,20 +1,22 @@
 package com.aplication.aplicaciotfg
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.AppCompatButton
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
+import com.bumptech.glide.Glide
 import com.google.android.material.navigation.NavigationView
-import java.util.regex.Matcher
-import java.util.regex.Pattern
 
 class EditarPerfilActivity : NavegadorActivity() {
     private lateinit var drawerLayout: DrawerLayout
@@ -29,16 +31,8 @@ class EditarPerfilActivity : NavegadorActivity() {
     private lateinit var seleccioImatge: TextView
     private var uriImatge: Uri? = null
     private var imatgeSeleccionada: Boolean = false
-
-    // Ens permet obtenir la uri de la imatge seleccionada
-    val fotoTriada = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-        if (uri != null) {
-            logo.setImageURI(uri)
-            uriImatge = uri
-            seleccioImatge.isVisible = false
-            imatgeSeleccionada = true
-        }
-    }
+    private val codiPermis = 123
+    private val codiImatge = 456
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,13 +54,17 @@ class EditarPerfilActivity : NavegadorActivity() {
         val titolExtra: String = intent.extras?.getString("titol").orEmpty()
         titol.text = titolExtra
 
-        // Carregar nom i foto de perfil del usuari
+        // Comprovem els permissos i en cas de tenir-los carreguem la imatge
+        if (Usuari.imatge != Uri.EMPTY) {
+            comprovarPermissos()
+        }
+
+        // Carregar nom del usuari
         nom.hint = Usuari.nom
-        logo.setImageURI(Usuari.imatge)
 
         // Al clicar per seleccionar la imatge ens permet seleccionar imatges del nostre dispossitiu
         seleccioImatge.setOnClickListener {
-            fotoTriada.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            seleccionadorImatge()
         }
 
         guardar.setOnClickListener {
@@ -78,7 +76,7 @@ class EditarPerfilActivity : NavegadorActivity() {
                 // Comprovem que la imatge s'ha modificat
                 if (imatgeSeleccionada) {
                     BaseDades.actualitzarUsuari(Usuari.email, nomS, contraS, uriImatge)
-                    Usuari.imatge = uriImatge
+                    Usuari.imatge = uriImatge!!
                 }
 
                 // Comprovem que el nom s'ha modificat
@@ -100,7 +98,7 @@ class EditarPerfilActivity : NavegadorActivity() {
 
                 // Canviar de pantalla a la pagina principal
                 val intent = Intent(this, PaginaPrincipalActivity::class.java)
-                intent.putExtra("titol", "Nom aplicacio")
+                intent.putExtra("titol", "Training Control")
                 startActivity(intent)
             } else {
                 Toast.makeText(this, "Modifica algun dato", Toast.LENGTH_LONG).show()
@@ -117,10 +115,60 @@ class EditarPerfilActivity : NavegadorActivity() {
         }
     }
 
-    private fun comprovarEmail(user: String): Boolean {
-        val expresions = "^[\\w\\.-]+@([\\w\\-]+\\.)+[A-Z]{2,4}$"
-        val pattern: Pattern = Pattern.compile(expresions, Pattern.CASE_INSENSITIVE)
-        val matcher: Matcher = pattern.matcher(user)
-        return matcher.matches()
+    // Funcio per comprovar el permissos
+    private fun comprovarPermissos() {
+        val versionSDK = Build.VERSION.SDK_INT
+
+        // Si sdk del dispositiu >= 33
+        if (versionSDK >= 33) {
+            // Comprovar si tinc permissos
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_MEDIA_IMAGES), codiPermis)
+            } else { // Si ja tinc permissos crido la funcio per seleccionar la imatge
+                Glide.with(this).load(Usuari.imatge).into(logo)
+            }
+        } else {
+            // Comprovar si tinc permissos
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), codiPermis)
+            } else { // Si ja tinc permissos crido la funcio per seleccionar la imatge
+                Glide.with(this).load(Usuari.imatge).into(logo)
+            }
+        }
+    }
+
+    // Funcio per selecionar la imatge
+    private fun seleccionadorImatge() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+        intent.type = "image/*"
+        startActivityForResult(intent, codiImatge)
+    }
+
+    // Funcio per demanar permissos
+    override fun onRequestPermissionsResult(codiPeticio: Int, permmissos: Array<out String>, resultat: IntArray) {
+        super.onRequestPermissionsResult(codiPeticio, permmissos, resultat)
+        when (codiPeticio) {
+            codiPermis -> {
+                // Si accepta els permissos
+                if (resultat.isNotEmpty() && resultat[0] == PackageManager.PERMISSION_GRANTED) {
+                    seleccionadorImatge()
+                } else {
+                    // Mostrar missatge que s'han d'acceptar els permissos
+                    Toast.makeText(this, "Acepta los permisos para continuar", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    // Funcio que emmagatzema el valor seleccionat al seleccionar una imatge
+    override fun onActivityResult(codiPeticio: Int, codiResultat: Int, data: Intent?) {
+        super.onActivityResult(codiPeticio, codiResultat, data)
+        if (codiPeticio == codiImatge && codiResultat == RESULT_OK) {
+            uriImatge = data?.data!!
+            Glide.with(this).load(uriImatge).into(logo)
+            seleccioImatge.isVisible = false
+            imatgeSeleccionada = true
+        }
     }
 }

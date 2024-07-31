@@ -1,6 +1,9 @@
 <resources>
-    <string name="app_name">AplicacioTFG</string>
+    <string name="app_name">Training Control</string>
     <string name="open_drawer">Abrir menú</string>
     <string name="close_drawer">Cerrar menú</string>
     <string name="notification_channel_name">Canal de Notificaciones</string>
+    <string name="fletxaEsquerre"><![CDATA[<]]></string>
+    <string name="fletxaDreta"><![CDATA[>]]></string>
+    <string name="idCanal">36543941516516549665214684168415056985552852841</string>
 </resources>

@@ -39,6 +39,7 @@ class LoginActivity : AppCompatActivity() {
             if (emailS.isNotEmpty() && pass.isNotEmpty()) {
                 // Si el email es valid
                 if (comprovarEmail(emailS)) {
+                    // Comprovem que existeix l'usuari
                     val usuari = BaseDades.carregarUsuari(emailS)
                     if (usuari != null) {
                         if (usuari.contrasenya == pass) {
@@ -47,13 +48,17 @@ class LoginActivity : AppCompatActivity() {
                             Usuari.contrasenya = usuari.contrasenya
                             Usuari.imatge = usuari.imatge
                             Usuari.entrenos = usuari.entrenos
+                            Usuari.carregaAgudaAhir = usuari.carregaAgudaAhir
+                            Usuari.carregaCronicaAhir = usuari.carregaCronicaAhir
+                            Usuari.hora = usuari.hora
+                            Usuari.minut = usuari.minut
 
                             // El usuari ha iniciat sessio amb exit
                             Toast.makeText(this, "Te has logeado con exito!", Toast.LENGTH_LONG).show()
 
                             // Canviar de pantalla a la pagina principal
                             val intent = Intent(this, PaginaPrincipalActivity::class.java)
-                            intent.putExtra("titol", "Nom aplicacio")
+                            intent.putExtra("titol", "Training Control")
                             startActivity(intent)
                         } else {
                             // Contrasenya incorrecte
@@ -78,6 +83,7 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    // Funcio per comprovar que s'introdueix un email valid
     private fun comprovarEmail(user: String): Boolean {
         val expresions = "^[\\w\\.-]+@([\\w\\-]+\\.)+[A-Z]{2,4}$"
         val pattern: Pattern = Pattern.compile(expresions, Pattern.CASE_INSENSITIVE)
